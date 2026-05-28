@@ -2,9 +2,10 @@ import { useEffect, useState } from "react";
 import {
   Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer,
 } from "recharts";
-import { Flame, AlertTriangle, Plus, Pencil, X } from "lucide-react";
+import { Flame, AlertTriangle, Plus, Pencil, X, GitCompare } from "lucide-react";
 import { listBuilds, saveBuild } from "./api.js";
 import BuildForge from "./components/BuildForge.jsx";
+import BuildCompare from "./components/BuildCompare.jsx";
 
 const TIER = { S: "#d4af37", A: "#d05a3e", B: "#4ea3d9", C: "#7a8a8f", D: "#5a5a5a" };
 
@@ -16,6 +17,8 @@ export default function App() {
   const [builds, setBuilds] = useState([]);
   const [selected, setSelected] = useState(null);
   const [editing, setEditing] = useState(false);
+  const [comparing, setComparing] = useState(false);
+  const [compareIds, setCompareIds] = useState([]);
   const [error, setError] = useState("");
 
   const refresh = (pick) =>
@@ -36,7 +39,10 @@ export default function App() {
     setEditing(false);
   };
 
-  const startNew = () => { setSelected(newBuild()); setEditing(true); };
+  const startNew = () => { setSelected(newBuild()); setEditing(true); setComparing(false); };
+  const toggleCompare = () => { setComparing((c) => !c); setEditing(false); };
+  const toggleCompareId = (id) =>
+    setCompareIds((ids) => (ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id]));
 
   return (
     <div style={{ color: "#e7dccd", fontFamily: "Georgia, serif", minHeight: "100vh" }}>
@@ -49,11 +55,18 @@ export default function App() {
               <p className="text-xs" style={{ color: "#9c8a76" }}>builds + meta + calculator</p>
             </div>
           </div>
-          <button onClick={startNew}
-            className="inline-flex items-center gap-2 rounded px-3 py-1.5 text-sm"
-            style={{ color: "#d4af37", border: "1px solid #d4af37", background: "transparent" }}>
-            <Plus size={15} /> Nova build
-          </button>
+          <div className="flex items-center gap-2">
+            <button onClick={toggleCompare}
+              className="inline-flex items-center gap-2 rounded px-3 py-1.5 text-sm"
+              style={{ color: comparing ? "#0c0a09" : "#9c8a76", background: comparing ? "#d4af37" : "transparent", border: "1px solid #3a2c22" }}>
+              <GitCompare size={15} /> {comparing ? "Sair da comparação" : "Comparar"}
+            </button>
+            <button onClick={startNew}
+              className="inline-flex items-center gap-2 rounded px-3 py-1.5 text-sm"
+              style={{ color: "#d4af37", border: "1px solid #d4af37", background: "transparent" }}>
+              <Plus size={15} /> Nova build
+            </button>
+          </div>
         </header>
 
         {error && (
@@ -63,41 +76,62 @@ export default function App() {
           </div>
         )}
 
+        {comparing && (
+          <p className="mb-2 text-xs" style={{ color: "#9c8a76" }}>
+            Modo comparação: selecione 2 ou mais builds.
+          </p>
+        )}
         <div className="mb-5 flex flex-wrap gap-2">
-          {builds.map((b) => (
-            <button key={b.id} onClick={() => { setSelected(b); setEditing(false); }}
-              className="rounded px-3 py-1.5 text-sm"
-              style={{
-                background: selected?.id === b.id ? "#1f1814" : "transparent",
-                border: `1px solid ${selected?.id === b.id ? "#d4af37" : "#3a2c22"}`,
-              }}>
-              <b style={{ color: TIER[b.tier] || "#9c8a76" }}>[{b.tier}]</b> {b.name}
-            </button>
-          ))}
+          {builds.map((b) => {
+            const active = comparing ? compareIds.includes(b.id) : selected?.id === b.id;
+            return (
+              <button key={b.id}
+                onClick={() => (comparing ? toggleCompareId(b.id) : (setSelected(b), setEditing(false)))}
+                className="rounded px-3 py-1.5 text-sm"
+                style={{
+                  background: active ? "#1f1814" : "transparent",
+                  border: `1px solid ${active ? "#d4af37" : "#3a2c22"}`,
+                }}>
+                <b style={{ color: TIER[b.tier] || "#9c8a76" }}>[{b.tier}]</b> {b.name}
+              </button>
+            );
+          })}
         </div>
 
-        {selected && editing && (
-          <div>
-            <div className="mb-3 flex justify-end">
-              <button onClick={() => setEditing(false)} className="inline-flex items-center gap-1.5 text-xs" style={{ color: "#9c8a76" }}>
-                <X size={13} /> Cancelar edição
-              </button>
-            </div>
-            <BuildForge build={selected} onSave={handleSave} />
-          </div>
-        )}
+        {comparing ? (
+          compareIds.length >= 2 ? (
+            <BuildCompare builds={builds.filter((b) => compareIds.includes(b.id))} />
+          ) : (
+            <p className="text-sm" style={{ color: "#9c8a76" }}>
+              Selecione pelo menos 2 builds acima para ver o comparativo.
+            </p>
+          )
+        ) : (
+          <>
+            {selected && editing && (
+              <div>
+                <div className="mb-3 flex justify-end">
+                  <button onClick={() => setEditing(false)} className="inline-flex items-center gap-1.5 text-xs" style={{ color: "#9c8a76" }}>
+                    <X size={13} /> Cancelar edição
+                  </button>
+                </div>
+                <BuildForge build={selected} onSave={handleSave} />
+              </div>
+            )}
 
-        {selected && !editing && (
-          <div>
-            <div className="mb-3 flex justify-end">
-              <button onClick={() => setEditing(true)}
-                className="inline-flex items-center gap-1.5 rounded px-3 py-1.5 text-sm"
-                style={{ color: "#d4af37", border: "1px solid #3a2c22", background: "transparent" }}>
-                <Pencil size={13} /> Editar
-              </button>
-            </div>
-            <Viewer build={selected} />
-          </div>
+            {selected && !editing && (
+              <div>
+                <div className="mb-3 flex justify-end">
+                  <button onClick={() => setEditing(true)}
+                    className="inline-flex items-center gap-1.5 rounded px-3 py-1.5 text-sm"
+                    style={{ color: "#d4af37", border: "1px solid #3a2c22", background: "transparent" }}>
+                    <Pencil size={13} /> Editar
+                  </button>
+                </div>
+                <Viewer build={selected} />
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>
