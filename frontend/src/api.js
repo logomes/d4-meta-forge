@@ -21,6 +21,8 @@ export const deleteBuild = (id) => request(`/api/builds/${id}`, { method: "DELET
 export const calcDamage = (profile) =>
   request(`/api/calc/damage`, jsonBody("POST", profile));
 
+export const getCatalog = () => request(`/api/calc/catalog`);
+
 export const latestPatch = () => request(`/api/meta/patch/latest`);
 
 function jsonBody(method, payload) {

@@ -3,7 +3,7 @@ import {
   Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer,
 } from "recharts";
 import { Flame, Plus, Trash2, Save, Swords, Calculator } from "lucide-react";
-import { calcDamage } from "../api.js";
+import { calcDamage, getCatalog } from "../api.js";
 
 const PALETTE = {
   gold: "#d4af37", fire: "#c0461f", text: "#e7dccd", muted: "#9c8a76",
@@ -258,11 +258,29 @@ function ListEditor({ icon, title, items, onChange, columns, blank }) {
 
 function DamageLab({ combat, setCombat, setModifiers, result, error }) {
   const mods = combat.modifiers || [];
+  const [catalog, setCatalog] = useState({ damage_sources: [], skill_presets: [] });
+  useEffect(() => { getCatalog().then(setCatalog).catch(() => {}); }, []);
+
   const updateMod = (i, key, value) => {
     const next = [...mods];
     next[i] = { ...next[i], [key]: value };
     setModifiers(next);
   };
+  const addSource = (id) => {
+    const src = catalog.damage_sources.find((s) => s.id === id);
+    if (src) setModifiers([...mods, { name: src.label, bucket: src.bucket, value: src.default_value }]);
+  };
+  const applyPreset = (id) => {
+    const p = catalog.skill_presets.find((s) => s.id === id);
+    if (p) setCombat({ base_hit: p.base_hit, hits_per_second: p.hits_per_second });
+  };
+
+  const groups = {};
+  for (const s of catalog.damage_sources) (groups[s.group] ||= []).push(s);
+  const buckets = catalog.damage_sources.length
+    ? [...new Set(catalog.damage_sources.map((s) => s.bucket))]
+    : BUCKET_HINTS;
+
   const pctFields = [
     ["crit_chance", "Crit chance (0-1)"],
     ["crit_damage_bonus", "Crit dmg bônus (0.5 = +50%)"],
@@ -274,6 +292,18 @@ function DamageLab({ combat, setCombat, setModifiers, result, error }) {
 
   return (
     <Section icon={Calculator} title="CALCULADORA DE DANO (ao vivo)">
+      {catalog.skill_presets.length > 0 && (
+        <div className="mb-3">
+          <Field label="Preset de skill (preenche base hit)">
+            <select defaultValue="" onChange={(e) => { applyPreset(e.target.value); e.target.value = ""; }} style={inputStyle}>
+              <option value="" disabled>Escolher skill…</option>
+              {catalog.skill_presets.map((p) => (
+                <option key={p.id} value={p.id}>{p.class_name} · {p.label}</option>
+              ))}
+            </select>
+          </Field>
+        </div>
+      )}
       <div className="grid grid-cols-2 gap-3">
         <Field label="Base hit"><NumberInput value={combat.base_hit} onChange={(e) => setCombat({ base_hit: e.target.value })} /></Field>
         <Field label="Hits / segundo"><NumberInput value={combat.hits_per_second} onChange={(e) => setCombat({ hits_per_second: e.target.value })} /></Field>
@@ -284,13 +314,25 @@ function DamageLab({ combat, setCombat, setModifiers, result, error }) {
         ))}
       </div>
 
-      <div className="mt-4 mb-2 flex items-center justify-between">
+      <div className="mt-4 mb-2 flex items-center justify-between gap-2">
         <span className="text-xs font-bold tracking-wide" style={{ color: PALETTE.muted }}>MODIFIERS (mesmo bucket soma · buckets multiplicam)</span>
         <button onClick={() => setModifiers([...mods, { name: "", bucket: "additive", value: 0.1 }])} style={ghostBtn()}>
           <Plus size={13} /> Modifier
         </button>
       </div>
-      <datalist id="bucket-hints">{BUCKET_HINTS.map((b) => <option key={b} value={b} />)}</datalist>
+      {Object.keys(groups).length > 0 && (
+        <div className="mb-2">
+          <select defaultValue="" onChange={(e) => { addSource(e.target.value); e.target.value = ""; }} style={inputStyle}>
+            <option value="" disabled>+ Adicionar fonte conhecida…</option>
+            {Object.entries(groups).map(([group, list]) => (
+              <optgroup key={group} label={group}>
+                {list.map((s) => <option key={s.id} value={s.id}>{s.label}</option>)}
+              </optgroup>
+            ))}
+          </select>
+        </div>
+      )}
+      <datalist id="bucket-hints">{buckets.map((b) => <option key={b} value={b} />)}</datalist>
       <div className="space-y-2">
         {mods.map((m, i) => (
           <div key={i} className="flex items-center gap-2">
