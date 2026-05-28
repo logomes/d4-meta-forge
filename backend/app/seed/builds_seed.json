@@ -1,0 +1,72 @@
+[
+  {
+    "id": "seed-tal-rasha-convergence",
+    "name": "Tal Rasha Convergence Sorc",
+    "class_name": "Sorcerer",
+    "archetype": "Multi-Element Autocast",
+    "tier": "S",
+    "patch": "3.0.3",
+    "objective": "All-around \u00b7 Pit Pushing \u00b7 Boss",
+    "data": {
+      "attributes": [
+        {"attribute": "Damage", "value": 9},
+        {"attribute": "Survivability", "value": 6},
+        {"attribute": "Mobility", "value": 9},
+        {"attribute": "Ease of Play", "value": 6},
+        {"attribute": "Gear Dependency", "value": 8}
+      ],
+      "skills": [
+        {"name": "Ball Lightning", "element": "Shock", "ranks": 5, "upgrades": "Enhanced + Wizard's", "role": "Engine principal"},
+        {"name": "Meteor", "element": "Fire", "ranks": 5, "upgrades": "Enhanced + Shooting Star", "role": "Dano + Overpower"},
+        {"name": "Blizzard", "element": "Frost", "ranks": 1, "upgrades": "Enhanced + Mage's", "role": "3o elemento (autocast)"},
+        {"name": "Hydra", "element": "Frost", "ranks": 1, "upgrades": "Enhanced + Frigid", "role": "CDR + sustain"},
+        {"name": "Teleport", "element": "Shock", "ranks": 1, "upgrades": "Enhanced + Blaze", "role": "Perma-tele"},
+        {"name": "Ice Armor", "element": "Frost", "ranks": 1, "upgrades": "Enhanced + Shimmering", "role": "Barrier"},
+        {"name": "Unstable Currents", "element": "Shock", "ranks": 1, "upgrades": "Prime + Boundless", "role": "Ultimate"}
+      ],
+      "enchantments": ["Meteor \u2014 perma-Teleport via Overpower", "Fireball \u2014 (ou Ball Lightning)"],
+      "gear": [
+        {"slot": "Helm", "item": "Aspect of Shredding Blades", "type": "aspect", "affixes": "Max Life \u00b7 Int \u00b7 CDR", "extra": "Rune Ritual"},
+        {"slot": "Chest", "item": "Raiment of the Infinite", "type": "unique", "affixes": "fixos (agrupa + DR)", "extra": "2x Topaz"},
+        {"slot": "Gloves", "item": "Aspect of the Untarnished Blaze", "type": "aspect", "affixes": "Ranks BL \u00b7 Atk Speed \u00b7 Crit", "extra": "Topaz"},
+        {"slot": "Pants", "item": "Aspect of Heavenly Strength", "type": "aspect", "affixes": "Max Life \u00b7 DR \u00b7 Armor", "extra": "Rune Invocation"},
+        {"slot": "Boots", "item": "Esu's Heirloom", "type": "unique", "affixes": "Movement Speed", "extra": "Diamond"},
+        {"slot": "Amulet", "item": "Fractured Winterglass", "type": "unique", "affixes": "CDR \u00b7 Conjuration", "extra": "Diamond"},
+        {"slot": "Ring 1", "item": "Tal Rasha's Iridescent Loop", "type": "unique", "affixes": "Crit \u00b7 Crit Dmg \u00b7 Resist", "extra": "Diamond"},
+        {"slot": "Ring 2", "item": "Ring of Starless Skies", "type": "unique", "affixes": "CDR \u00b7 Crit Dmg \u00b7 Mana", "extra": "Diamond"},
+        {"slot": "Weapon", "item": "Aspect of Armageddon", "type": "aspect", "affixes": "Int \u00b7 Crit Dmg \u00b7 Vuln", "extra": "2x Ruby"},
+        {"slot": "Offhand", "item": "Aspect of Elemental Constellation", "type": "aspect", "affixes": "CDR \u00b7 Lucky Hit \u00b7 Mana", "extra": "\u2014"}
+      ],
+      "talismans": {
+        "seal": "Beru of the Threefold",
+        "set": "Tal Rasha's Threefold Way \u2014 5-set",
+        "charms": ["4x Charm Tal Rasha", "Tal Rasha's Iridescent Loop como Unique Charm (opcional)"],
+        "variant": "Defensiva: Seal of the Diamond Mind + 2x Habacalva's Cauldron (3-set)"
+      },
+      "paragon": {
+        "boards": [
+          {"name": "Starter", "glyph": "Elementalist (lv 100)"},
+          {"name": "Shock / Crackling", "glyph": "Glyph de Shock (lv 100)"},
+          {"name": "Fire", "glyph": "Combustion (lv 100)"},
+          {"name": "Conjuration", "glyph": "Glyph de Conjuration"},
+          {"name": "Damage Legendary", "glyph": "Glyph utilitario"}
+        ],
+        "rule": "Pegar TODOS os Legendary nodes primeiro."
+      },
+      "mercenary": {"hired": "Utility / CC", "reinforcement": "Raheir \u2014 Bastion on Injured"},
+      "rotation": [
+        "Unstable Currents",
+        "Teleport (Blaze) pra dentro do pack",
+        "Segura Ball Lightning",
+        "Set Threefold autocasta Meteor/Blizzard (mantem stacks do Iridescent Loop)",
+        "Ice Armor pra sobreviver"
+      ],
+      "entryCost": [
+        "Iridescent Loop: target-farm do Harbinger of Hatred",
+        "Threefold Way charms + Beru Seal: Echoing Hatred / Undercity",
+        "Gargalo: fechar 5-set + Fractured Winterglass"
+      ],
+      "sources": "Maxroll \u00b7 Fextralife \u00b7 aoeah \u2014 patch 3.0.3"
+    }
+  }
+]

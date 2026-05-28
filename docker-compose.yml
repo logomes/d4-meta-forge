@@ -1,0 +1,19 @@
+services:
+  api:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-sqlite:////app/data/d4meta.db}
+      CORS_ORIGINS: '["http://localhost:5173","http://localhost:8080"]'
+      GAMEDATA_DIR: /app/data/gamedata
+    volumes:
+      - ./backend/data:/app/data
+  web:
+    build: ./frontend
+    ports:
+      - "8080:80"
+    environment:
+      VITE_API_URL: http://localhost:8000
+    depends_on:
+      - api

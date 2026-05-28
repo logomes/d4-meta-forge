@@ -1,0 +1,150 @@
+import { useEffect, useState } from "react";
+import {
+  Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer,
+} from "recharts";
+import { Flame, AlertTriangle, Plus, Pencil, X } from "lucide-react";
+import { listBuilds, saveBuild } from "./api.js";
+import BuildForge from "./components/BuildForge.jsx";
+
+const TIER = { S: "#d4af37", A: "#d05a3e", B: "#4ea3d9", C: "#7a8a8f", D: "#5a5a5a" };
+
+function newBuild() {
+  return { id: "new", name: "Nova Build", class_name: "Sorcerer", archetype: "", tier: "B", patch: "", objective: "", data: {} };
+}
+
+export default function App() {
+  const [builds, setBuilds] = useState([]);
+  const [selected, setSelected] = useState(null);
+  const [editing, setEditing] = useState(false);
+  const [error, setError] = useState("");
+
+  const refresh = (pick) =>
+    listBuilds()
+      .then((rows) => {
+        setBuilds(rows);
+        setSelected((s) => (pick ? rows.find((b) => b.id === pick) || rows[0] || null : s || rows[0] || null));
+        setError("");
+      })
+      .catch((e) => setError(e.message));
+
+  useEffect(() => { refresh(); }, []);
+
+  const handleSave = async (payload) => {
+    const saved = await saveBuild(payload);
+    await refresh(saved.id);
+    setSelected(saved);
+    setEditing(false);
+  };
+
+  const startNew = () => { setSelected(newBuild()); setEditing(true); };
+
+  return (
+    <div style={{ color: "#e7dccd", fontFamily: "Georgia, serif", minHeight: "100vh" }}>
+      <div className="mx-auto max-w-6xl px-4 py-6">
+        <header className="mb-6 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Flame size={26} color="#c0461f" />
+            <div>
+              <h1 className="text-xl font-black" style={{ color: "#d4af37", letterSpacing: "0.1em" }}>D4 META FORGE</h1>
+              <p className="text-xs" style={{ color: "#9c8a76" }}>builds + meta + calculator</p>
+            </div>
+          </div>
+          <button onClick={startNew}
+            className="inline-flex items-center gap-2 rounded px-3 py-1.5 text-sm"
+            style={{ color: "#d4af37", border: "1px solid #d4af37", background: "transparent" }}>
+            <Plus size={15} /> Nova build
+          </button>
+        </header>
+
+        {error && (
+          <div className="mb-4 flex items-center gap-2 rounded p-3 text-sm"
+            style={{ background: "rgba(192,70,31,0.12)", color: "#e08a7a" }}>
+            <AlertTriangle size={16} /> API offline ({error}). Suba o backend: <code>uvicorn app.main:app</code>
+          </div>
+        )}
+
+        <div className="mb-5 flex flex-wrap gap-2">
+          {builds.map((b) => (
+            <button key={b.id} onClick={() => { setSelected(b); setEditing(false); }}
+              className="rounded px-3 py-1.5 text-sm"
+              style={{
+                background: selected?.id === b.id ? "#1f1814" : "transparent",
+                border: `1px solid ${selected?.id === b.id ? "#d4af37" : "#3a2c22"}`,
+              }}>
+              <b style={{ color: TIER[b.tier] || "#9c8a76" }}>[{b.tier}]</b> {b.name}
+            </button>
+          ))}
+        </div>
+
+        {selected && editing && (
+          <div>
+            <div className="mb-3 flex justify-end">
+              <button onClick={() => setEditing(false)} className="inline-flex items-center gap-1.5 text-xs" style={{ color: "#9c8a76" }}>
+                <X size={13} /> Cancelar edição
+              </button>
+            </div>
+            <BuildForge build={selected} onSave={handleSave} />
+          </div>
+        )}
+
+        {selected && !editing && (
+          <div>
+            <div className="mb-3 flex justify-end">
+              <button onClick={() => setEditing(true)}
+                className="inline-flex items-center gap-1.5 rounded px-3 py-1.5 text-sm"
+                style={{ color: "#d4af37", border: "1px solid #3a2c22", background: "transparent" }}>
+                <Pencil size={13} /> Editar
+              </button>
+            </div>
+            <Viewer build={selected} />
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function Viewer({ build }) {
+  const d = build.data || {};
+  return (
+    <div className="grid gap-4 md:grid-cols-5">
+      <section className="md:col-span-3 rounded-lg p-5"
+        style={{ background: "#17120f", border: "1px solid #2a201a" }}>
+        <h2 className="text-2xl font-black" style={{ color: "#e7dccd" }}>{build.name}</h2>
+        <p className="mt-1 text-sm" style={{ color: "#9c8a76" }}>
+          {build.class_name} · {build.archetype} · patch {build.patch}
+        </p>
+        <p className="mt-2 text-sm" style={{ color: "#d4af37" }}>{build.objective}</p>
+        {Array.isArray(d.skills) && (
+          <ul className="mt-4 space-y-1 text-sm">
+            {d.skills.map((s, i) => (
+              <li key={i} style={{ color: "#e7dccd" }}>
+                <b>{s.name}</b> <span style={{ color: "#9c8a76" }}>{s.ranks}/5 · {s.role}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+        {d.combat && (
+          <p className="mt-4 text-xs" style={{ color: "#9c8a76" }}>
+            Perfil de combate salvo · clique em <b style={{ color: "#d4af37" }}>Editar</b> para abrir a calculadora ao vivo.
+          </p>
+        )}
+      </section>
+
+      <section className="md:col-span-2 rounded-lg p-3"
+        style={{ background: "#17120f", border: "1px solid #2a201a" }}>
+        {Array.isArray(d.attributes) && (
+          <div className="h-48">
+            <ResponsiveContainer width="100%" height="100%">
+              <RadarChart data={d.attributes} outerRadius="72%">
+                <PolarGrid stroke="#3a2c22" />
+                <PolarAngleAxis dataKey="attribute" tick={{ fill: "#9c8a76", fontSize: 9 }} />
+                <Radar dataKey="value" stroke="#c0461f" fill="#c0461f" fillOpacity={0.45} />
+              </RadarChart>
+            </ResponsiveContainer>
+          </div>
+        )}
+      </section>
+    </div>
+  );
+}
