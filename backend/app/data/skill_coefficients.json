@@ -1,0 +1,32 @@
+{
+  "patch": "seed (não-oficial — placeholder até curadoria)",
+  "sources": {
+    "seed": { "label": "Seed (valores de exemplo)", "url": "" }
+  },
+  "skills": [
+    {
+      "id": "barbarian_hota",
+      "name": "Hammer of the Ancients",
+      "class_name": "Barbarian",
+      "category": "Core",
+      "tags": ["physical", "overpower"],
+      "coefficient": { "base": 0.60, "per_rank": 0.06 },
+      "ranks": 5,
+      "source": "seed",
+      "confidence": "low",
+      "note": "valor de exemplo; substituir na curadoria"
+    },
+    {
+      "id": "sorcerer_fireball",
+      "name": "Fireball",
+      "class_name": "Sorcerer",
+      "category": "Core",
+      "tags": ["fire"],
+      "coefficient": { "base": 0.40, "per_rank": 0.04 },
+      "ranks": 5,
+      "source": "seed",
+      "confidence": "low",
+      "note": "valor de exemplo; substituir na curadoria"
+    }
+  ]
+}
