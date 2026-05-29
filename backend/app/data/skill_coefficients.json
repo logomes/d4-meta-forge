@@ -1,7 +1,8 @@
 {
-  "patch": "seed (não-oficial — placeholder até curadoria)",
+  "patch": "≈3.0 (Season 13) — valores NÃO verificados, ver notas/confidence",
   "sources": {
-    "seed": { "label": "Seed (valores de exemplo)", "url": "" }
+    "seed": { "label": "Seed (valor de exemplo, não-oficial)", "url": "" },
+    "fextralife": { "label": "Diablo 4 Wiki (FextraLife) — ballpark, não confirmado p/ patch 3.0", "url": "https://diablo4.wiki.fextralife.com/" }
   },
   "skills": [
     {
@@ -14,7 +15,7 @@
       "ranks": 5,
       "source": "seed",
       "confidence": "low",
-      "note": "valor de exemplo; substituir na curadoria"
+      "note": "placeholder de exemplo; valor real não verificado (a fonte web retornou dado duplicado suspeito). Conferir in-game."
     },
     {
       "id": "sorcerer_fireball",
@@ -26,7 +27,55 @@
       "ranks": 5,
       "source": "seed",
       "confidence": "low",
-      "note": "valor de exemplo; substituir na curadoria"
+      "note": "placeholder de exemplo; valor real não verificado. Conferir in-game."
+    },
+    {
+      "id": "barbarian_whirlwind",
+      "name": "Whirlwind",
+      "class_name": "Barbarian",
+      "category": "Core",
+      "tags": ["physical", "channeled"],
+      "coefficient": { "base": 0.71, "per_rank": 0.073 },
+      "ranks": 5,
+      "source": "fextralife",
+      "confidence": "low",
+      "note": "ballpark FextraLife (rank1 71%, escala linear dos ranks 1-4; rank 5 tem salto maior, ignorado). NÃO verificado p/ patch 3.0 — conferir in-game."
+    },
+    {
+      "id": "sorcerer_ball_lightning",
+      "name": "Ball Lightning",
+      "class_name": "Sorcerer",
+      "category": "Core",
+      "tags": ["shock", "channeled"],
+      "coefficient": { "base": 1.20, "per_rank": 0.12 },
+      "ranks": 5,
+      "source": "fextralife",
+      "confidence": "low",
+      "note": "ballpark FextraLife (rotulado 'por segundo'; rank1 120%, escala linear ranks 1-4). NÃO verificado p/ patch 3.0 — conferir in-game."
+    },
+    {
+      "id": "necromancer_bone_spear",
+      "name": "Bone Spear",
+      "class_name": "Necromancer",
+      "category": "Core",
+      "tags": ["physical"],
+      "coefficient": { "base": 1.30, "per_rank": 0.13 },
+      "ranks": 5,
+      "source": "fextralife",
+      "confidence": "low",
+      "note": "ballpark FextraLife (rank1 130%, escala linear ranks 1-4; rank 5 salto maior, ignorado). NÃO verificado p/ patch 3.0 — conferir in-game."
+    },
+    {
+      "id": "rogue_barrage",
+      "name": "Barrage",
+      "class_name": "Rogue",
+      "category": "Core",
+      "tags": ["physical", "imbuable"],
+      "coefficient": { "base": 1.00, "per_rank": 0.10 },
+      "ranks": 5,
+      "source": "fextralife",
+      "confidence": "low",
+      "note": "ballpark FextraLife (rank1 100%, escala linear ranks 1-4; rank 5 salto maior, ignorado). Dano por flecha (5 flechas). NÃO verificado p/ patch 3.0 — conferir in-game."
     }
   ]
 }
