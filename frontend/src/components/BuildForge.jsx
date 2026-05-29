@@ -340,7 +340,7 @@ function DamageLab({ combat, setCombat, setModifiers, result, error }) {
       )}
       <div className="grid grid-cols-2 gap-3">
         <Field label={selectedSkill && combat.weapon_damage ? "Base hit (calculado)" : "Base hit"}>
-          <NumberInput value={result?.resolved ? result.base_hit : (selectedSkill && combat.weapon_damage ? "…" : combat.base_hit)}
+          <NumberInput value={result?.resolved ? result.base_hit : (selectedSkill && combat.weapon_damage ? "" : combat.base_hit)}
             disabled={!!(selectedSkill && combat.weapon_damage)}
             onChange={(e) => setCombat({ base_hit: e.target.value })} />
         </Field>
