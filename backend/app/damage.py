@@ -37,6 +37,21 @@ class BucketBreakdown(BaseModel):
     multiplier: float
 
 
+class ResolvedSkill(BaseModel):
+    """Output-only metadata when base_hit was resolved from a skill coefficient.
+
+    Pure data — the engine never sets this; the transport layer fills it in.
+    """
+    skill_id: str
+    name: str
+    rank: int
+    coefficient: float
+    weapon_damage: float
+    source: str
+    confidence: str
+    patch: str
+
+
 class DamageResult(BaseModel):
     base_hit: float
     buckets: list[BucketBreakdown]
@@ -45,6 +60,7 @@ class DamageResult(BaseModel):
     overpower_multiplier: float
     expected_hit: float
     expected_dps: float
+    resolved: ResolvedSkill | None = None
 
 
 def _bucketize(modifiers: Iterable[Modifier]) -> dict[str, float]:
