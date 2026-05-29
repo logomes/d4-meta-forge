@@ -26,18 +26,8 @@ class DamageSource(BaseModel):
     note: str = ""
 
 
-class SkillPreset(BaseModel):
-    id: str
-    label: str
-    class_name: str
-    base_hit: float
-    hits_per_second: float
-    note: str = ""
-
-
 class DamageCatalog(BaseModel):
     damage_sources: list[DamageSource]
-    skill_presets: list[SkillPreset]
 
 
 _ADD = "Aditivo [+] (somam no mesmo bucket)"
@@ -79,21 +69,4 @@ DAMAGE_SOURCES: list[DamageSource] = [
     _mul("constellation", "[x] Elemental Constellation (Sorcerer)", "constellation", 0.40),
 ]
 
-SKILL_PRESETS: list[SkillPreset] = [
-    SkillPreset(id="sorc_ball_lightning", label="Ball Lightning", class_name="Sorcerer",
-                base_hit=8000, hits_per_second=4, note="Valores aproximados."),
-    SkillPreset(id="sorc_meteor", label="Meteor", class_name="Sorcerer",
-                base_hit=25000, hits_per_second=0.7, note="Valores aproximados."),
-    SkillPreset(id="barb_hota", label="Hammer of the Ancients", class_name="Barbarian",
-                base_hit=30000, hits_per_second=1.5, note="Valores aproximados."),
-    SkillPreset(id="necro_blood_surge", label="Blood Surge", class_name="Necromancer",
-                base_hit=12000, hits_per_second=1.2, note="Valores aproximados."),
-    SkillPreset(id="rogue_barrage", label="Barrage", class_name="Rogue",
-                base_hit=6000, hits_per_second=5, note="Valores aproximados."),
-    SkillPreset(id="druid_lightning_storm", label="Lightning Storm", class_name="Druid",
-                base_hit=9000, hits_per_second=3, note="Valores aproximados."),
-    SkillPreset(id="spiritborn_quill_volley", label="Quill Volley", class_name="Spiritborn",
-                base_hit=7000, hits_per_second=3, note="Valores aproximados."),
-]
-
-CATALOG = DamageCatalog(damage_sources=DAMAGE_SOURCES, skill_presets=SKILL_PRESETS)
+CATALOG = DamageCatalog(damage_sources=DAMAGE_SOURCES)
