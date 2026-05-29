@@ -4,6 +4,7 @@ import {
 } from "recharts";
 import { Flame, Plus, Trash2, Save, Swords, Calculator } from "lucide-react";
 import { calcDamage, getCatalog, getSkills } from "../api.js";
+import SkillIcon from "./SkillIcon.jsx";
 
 const PALETTE = {
   gold: "#d4af37", fire: "#c0461f", text: "#e7dccd", muted: "#9c8a76",
@@ -332,8 +333,11 @@ function DamageLab({ combat, setCombat, setModifiers, result, error }) {
               onChange={(e) => setCombat({ skill_rank: num(e.target.value, 1) })} />
           </Field>
           {selectedSkill && (
-            <div className="self-end text-[11px]" style={{ color: PALETTE.muted }}>
-              fonte: {selectedSkill.source || "—"} · conf: {selectedSkill.confidence}
+            <div className="flex items-center gap-2 self-end">
+              <SkillIcon url={selectedSkill.icon_url} size={28} alt={selectedSkill.name} />
+              <span className="text-[11px]" style={{ color: PALETTE.muted }}>
+                fonte: {selectedSkill.source || "—"} · conf: {selectedSkill.confidence}
+              </span>
             </div>
           )}
         </div>

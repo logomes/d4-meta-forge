@@ -7,6 +7,7 @@ import { listBuilds, saveBuild, getSkills } from "./api.js";
 import { buildToMarkdown } from "./markdown.js";
 import BuildForge from "./components/BuildForge.jsx";
 import BuildCompare from "./components/BuildCompare.jsx";
+import SkillIcon from "./components/SkillIcon.jsx";
 
 const TIER = { S: "#d4af37", A: "#d05a3e", B: "#4ea3d9", C: "#7a8a8f", D: "#5a5a5a" };
 
@@ -22,6 +23,7 @@ export default function App() {
   const [compareIds, setCompareIds] = useState([]);
   const [showMd, setShowMd] = useState(false);
   const [error, setError] = useState("");
+  const [skillsById, setSkillsById] = useState({});
 
   const refresh = (pick) =>
     listBuilds()
@@ -33,6 +35,11 @@ export default function App() {
       .catch((e) => setError(e.message));
 
   useEffect(() => { refresh(); }, []);
+  useEffect(() => {
+    getSkills()
+      .then((cat) => setSkillsById(Object.fromEntries((cat.skills || []).map((s) => [s.id, s]))))
+      .catch(() => {});
+  }, []);
 
   const handleSave = async (payload) => {
     const saved = await saveBuild(payload);
@@ -135,8 +142,8 @@ export default function App() {
                     <Pencil size={13} /> Editar
                   </button>
                 </div>
-                {showMd && <ExportPanel build={selected} onClose={() => setShowMd(false)} />}
-                <Viewer build={selected} />
+                {showMd && <ExportPanel build={selected} skillsById={skillsById} onClose={() => setShowMd(false)} />}
+                <Viewer build={selected} skillsById={skillsById} />
               </div>
             )}
           </>
@@ -146,8 +153,9 @@ export default function App() {
   );
 }
 
-function Viewer({ build }) {
+function Viewer({ build, skillsById = {} }) {
   const d = build.data || {};
+  const combatSkill = d.combat?.skill_id ? skillsById[d.combat.skill_id] : null;
   return (
     <div className="grid gap-4 md:grid-cols-5">
       <section className="md:col-span-3 rounded-lg p-5"
@@ -167,9 +175,19 @@ function Viewer({ build }) {
           </ul>
         )}
         {d.combat && (
-          <p className="mt-4 text-xs" style={{ color: "#9c8a76" }}>
-            Perfil de combate salvo · clique em <b style={{ color: "#d4af37" }}>Editar</b> para abrir a calculadora ao vivo.
-          </p>
+          <div className="mt-4">
+            {d.combat.skill_id && (
+              <div className="mb-2 flex items-center gap-2">
+                <SkillIcon url={combatSkill?.icon_url} size={32} alt={combatSkill?.name || d.combat.skill_id} />
+                <span className="text-sm" style={{ color: "#e7dccd" }}>
+                  {combatSkill?.name || d.combat.skill_id}
+                </span>
+              </div>
+            )}
+            <p className="text-xs" style={{ color: "#9c8a76" }}>
+              Perfil de combate salvo · clique em <b style={{ color: "#d4af37" }}>Editar</b> para abrir a calculadora ao vivo.
+            </p>
+          </div>
         )}
       </section>
 
@@ -191,13 +209,8 @@ function Viewer({ build }) {
   );
 }
 
-function ExportPanel({ build, onClose }) {
-  const [skillNames, setSkillNames] = useState({});
-  useEffect(() => {
-    getSkills()
-      .then((cat) => setSkillNames(Object.fromEntries((cat.skills || []).map((s) => [s.id, s.name]))))
-      .catch(() => {});
-  }, []);
+function ExportPanel({ build, skillsById = {}, onClose }) {
+  const skillNames = Object.fromEntries(Object.values(skillsById).map((s) => [s.id, s.name]));
   const md = buildToMarkdown(build, skillNames);
   const [copied, setCopied] = useState(false);
   const copy = async () => {

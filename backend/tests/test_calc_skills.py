@@ -74,3 +74,9 @@ def test_damage_skill_without_weapon_uses_manual_base(client):
     body = res.json()
     assert body["base_hit"] == 700
     assert body["resolved"] is None
+
+
+def test_skills_endpoint_exposes_icon_url(client):
+    res = client.get("/api/calc/skills")
+    assert res.status_code == 200
+    assert all("icon_url" in s for s in res.json()["skills"])
