@@ -11,6 +11,7 @@ from __future__ import annotations
 import json
 from functools import lru_cache
 from pathlib import Path
+from typing import Literal
 
 from pydantic import BaseModel
 
@@ -31,13 +32,18 @@ class Skill(BaseModel):
     coefficient: Coefficient
     ranks: int = 5
     source: str = ""
-    confidence: str = "medium"
+    confidence: Literal["low", "medium", "high"] = "medium"
     note: str | None = None
+
+
+class SourceEntry(BaseModel):
+    label: str
+    url: str = ""
 
 
 class SkillCatalog(BaseModel):
     patch: str
-    sources: dict[str, dict] = {}
+    sources: dict[str, SourceEntry] = {}
     skills: list[Skill] = []
 
 
@@ -48,6 +54,7 @@ def load() -> SkillCatalog:
 
 
 def list_skills() -> list[Skill]:
+    """All curated skills (for the API catalog)."""
     return load().skills
 
 

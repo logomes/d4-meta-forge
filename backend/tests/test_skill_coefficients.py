@@ -26,10 +26,16 @@ def test_coefficient_at_linear_scaling():
 
 
 def test_coefficient_at_clamps_rank():
-    # rank acima do máximo é limitado a `ranks`; abaixo de 1 vira 1
+    # rank above the max clamps to `ranks`; below 1 clamps to 1
     assert sc.coefficient_at("barbarian_hota", 99) == sc.coefficient_at("barbarian_hota", 5)
     assert sc.coefficient_at("barbarian_hota", 0) == sc.coefficient_at("barbarian_hota", 1)
 
 
 def test_coefficient_at_unknown_is_none():
     assert sc.coefficient_at("does_not_exist", 1) is None
+
+
+def test_list_skills_returns_all():
+    skills = sc.list_skills()
+    assert isinstance(skills, list)
+    assert {s.id for s in skills} >= {"barbarian_hota"}
