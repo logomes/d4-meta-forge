@@ -266,14 +266,20 @@ function ListEditor({ icon, title, items, onChange, columns, blank }) {
 
 function DamageLab({ combat, setCombat, setModifiers, result, error }) {
   const mods = combat.modifiers || [];
-  const [catalog, setCatalog] = useState({ damage_sources: [], skill_presets: [] });
+  const [catalog, setCatalog] = useState({ damage_sources: [] });
   const [skillCat, setSkillCat] = useState({ patch: "", skills: [] });
   useEffect(() => { getCatalog().then(setCatalog).catch(() => {}); }, []);
   useEffect(() => { getSkills().then(setSkillCat).catch(() => {}); }, []);
 
-  const skillsByClass = {};
-  for (const s of skillCat.skills) (skillsByClass[s.class_name] ||= []).push(s);
-  const selectedSkill = skillCat.skills.find((s) => s.id === combat.skill_id) || null;
+  const skillsByClass = useMemo(() => {
+    const map = {};
+    for (const s of skillCat.skills) (map[s.class_name] ||= []).push(s);
+    return map;
+  }, [skillCat.skills]);
+  const selectedSkill = useMemo(
+    () => skillCat.skills.find((s) => s.id === combat.skill_id) ?? null,
+    [skillCat.skills, combat.skill_id],
+  );
 
   const updateMod = (i, key, value) => {
     const next = [...mods];
@@ -284,7 +290,6 @@ function DamageLab({ combat, setCombat, setModifiers, result, error }) {
     const src = catalog.damage_sources.find((s) => s.id === id);
     if (src) setModifiers([...mods, { name: src.label, bucket: src.bucket, value: src.default_value }]);
   };
-
 
   const groups = {};
   for (const s of catalog.damage_sources) (groups[s.group] ||= []).push(s);
@@ -335,7 +340,7 @@ function DamageLab({ combat, setCombat, setModifiers, result, error }) {
       )}
       <div className="grid grid-cols-2 gap-3">
         <Field label={selectedSkill && combat.weapon_damage ? "Base hit (calculado)" : "Base hit"}>
-          <NumberInput value={result?.resolved ? result.base_hit : combat.base_hit}
+          <NumberInput value={result?.resolved ? result.base_hit : (selectedSkill && combat.weapon_damage ? "…" : combat.base_hit)}
             disabled={!!(selectedSkill && combat.weapon_damage)}
             onChange={(e) => setCombat({ base_hit: e.target.value })} />
         </Field>
