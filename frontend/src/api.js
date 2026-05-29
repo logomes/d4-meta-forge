@@ -23,6 +23,8 @@ export const calcDamage = (profile) =>
 
 export const getCatalog = () => request(`/api/calc/catalog`);
 
+export const getSkills = () => request(`/api/calc/skills`);
+
 export const latestPatch = () => request(`/api/meta/patch/latest`);
 
 function jsonBody(method, payload) {
