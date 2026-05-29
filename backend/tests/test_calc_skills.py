@@ -63,3 +63,14 @@ def test_damage_422_body_mentions_base_hit(client):
     res = client.post("/api/calc/damage", json={"hits_per_second": 1})
     assert res.status_code == 422
     assert "base_hit" in str(res.json()["detail"])
+
+
+def test_damage_skill_without_weapon_uses_manual_base(client):
+    # skill_id presente mas sem weapon_damage: não resolve, usa o base_hit manual.
+    res = client.post("/api/calc/damage", json={
+        "skill_id": "barbarian_hota", "base_hit": 700, "hits_per_second": 1,
+    })
+    assert res.status_code == 200
+    body = res.json()
+    assert body["base_hit"] == 700
+    assert body["resolved"] is None

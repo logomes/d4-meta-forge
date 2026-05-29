@@ -116,7 +116,7 @@ export default function BuildForge({ build, onSave }) {
       overpower_bonus: num(c.overpower_bonus),
       skill_id: c.skill_id || null,
       skill_rank: num(c.skill_rank, 1),
-      weapon_damage: c.weapon_damage ? num(c.weapon_damage) : null,
+      weapon_damage: num(c.weapon_damage) > 0 ? num(c.weapon_damage) : null,
       modifiers: (c.modifiers || []).map((m) => ({
         name: m.name || "", bucket: m.bucket || "additive", value: num(m.value),
       })),
