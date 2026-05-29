@@ -34,6 +34,7 @@ class Skill(BaseModel):
     source: str = ""
     confidence: Literal["low", "medium", "high"] = "medium"
     note: str | None = None
+    icon_url: str | None = None
 
 
 class SourceEntry(BaseModel):

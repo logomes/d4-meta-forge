@@ -39,3 +39,9 @@ def test_list_skills_returns_all():
     skills = sc.list_skills()
     assert isinstance(skills, list)
     assert {s.id for s in skills} >= {"barbarian_hota"}
+
+
+def test_skill_icon_url_defaults_none():
+    from app.skill_coefficients import Coefficient, Skill
+    s = Skill(id="x", name="X", class_name="Barbarian", coefficient=Coefficient(base=0.5))
+    assert s.icon_url is None
