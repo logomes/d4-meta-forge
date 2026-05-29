@@ -38,6 +38,9 @@ export function buildToMarkdown(build) {
   const c = d.combat;
   if (c) {
     out.push("## Perfil de combate", "");
+    if (c.skill_id) {
+      out.push(`- Skill: ${esc(c.skill_id)} (rank ${esc(c.skill_rank ?? 1)}) · Dano de arma: ${esc(c.weapon_damage)}`);
+    }
     out.push(`- Base hit: ${esc(c.base_hit)} · Hits/s: ${esc(c.hits_per_second)}`);
     out.push(`- Crit: ${esc(c.crit_chance)} chance · +${esc(c.crit_damage_bonus)} dmg`);
     out.push(`- Vulnerable: ${esc(c.vulnerable_uptime)} uptime · +${esc(c.vulnerable_bonus)}`);
