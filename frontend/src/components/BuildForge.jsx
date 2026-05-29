@@ -3,7 +3,7 @@ import {
   Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer,
 } from "recharts";
 import { Flame, Plus, Trash2, Save, Swords, Calculator } from "lucide-react";
-import { calcDamage, getCatalog } from "../api.js";
+import { calcDamage, getCatalog, getSkills } from "../api.js";
 
 const PALETTE = {
   gold: "#d4af37", fire: "#c0461f", text: "#e7dccd", muted: "#9c8a76",
@@ -114,6 +114,9 @@ export default function BuildForge({ build, onSave }) {
       vulnerable_bonus: num(c.vulnerable_bonus),
       overpower_chance: num(c.overpower_chance),
       overpower_bonus: num(c.overpower_bonus),
+      skill_id: c.skill_id || null,
+      skill_rank: num(c.skill_rank, 1),
+      weapon_damage: c.weapon_damage ? num(c.weapon_damage) : null,
       modifiers: (c.modifiers || []).map((m) => ({
         name: m.name || "", bucket: m.bucket || "additive", value: num(m.value),
       })),
@@ -123,7 +126,12 @@ export default function BuildForge({ build, onSave }) {
   // Live damage: debounce calls to the backend engine whenever the profile changes.
   const timer = useRef(null);
   useEffect(() => {
-    if (profile.base_hit <= 0) { setResult(null); setCalcError("base_hit deve ser > 0"); return; }
+    const resolvable = profile.skill_id && profile.weapon_damage > 0;
+    if (profile.base_hit <= 0 && !resolvable) {
+      setResult(null);
+      setCalcError("Informe base hit > 0, ou selecione uma skill + dano de arma.");
+      return;
+    }
     clearTimeout(timer.current);
     timer.current = setTimeout(() => {
       calcDamage(profile)
@@ -259,7 +267,13 @@ function ListEditor({ icon, title, items, onChange, columns, blank }) {
 function DamageLab({ combat, setCombat, setModifiers, result, error }) {
   const mods = combat.modifiers || [];
   const [catalog, setCatalog] = useState({ damage_sources: [], skill_presets: [] });
+  const [skillCat, setSkillCat] = useState({ patch: "", skills: [] });
   useEffect(() => { getCatalog().then(setCatalog).catch(() => {}); }, []);
+  useEffect(() => { getSkills().then(setSkillCat).catch(() => {}); }, []);
+
+  const skillsByClass = {};
+  for (const s of skillCat.skills) (skillsByClass[s.class_name] ||= []).push(s);
+  const selectedSkill = skillCat.skills.find((s) => s.id === combat.skill_id) || null;
 
   const updateMod = (i, key, value) => {
     const next = [...mods];
@@ -270,10 +284,7 @@ function DamageLab({ combat, setCombat, setModifiers, result, error }) {
     const src = catalog.damage_sources.find((s) => s.id === id);
     if (src) setModifiers([...mods, { name: src.label, bucket: src.bucket, value: src.default_value }]);
   };
-  const applyPreset = (id) => {
-    const p = catalog.skill_presets.find((s) => s.id === id);
-    if (p) setCombat({ base_hit: p.base_hit, hits_per_second: p.hits_per_second });
-  };
+
 
   const groups = {};
   for (const s of catalog.damage_sources) (groups[s.group] ||= []).push(s);
@@ -292,20 +303,42 @@ function DamageLab({ combat, setCombat, setModifiers, result, error }) {
 
   return (
     <Section icon={Calculator} title="CALCULADORA DE DANO (ao vivo)">
-      {catalog.skill_presets.length > 0 && (
-        <div className="mb-3">
-          <Field label="Preset de skill (preenche base hit)">
-            <select defaultValue="" onChange={(e) => { applyPreset(e.target.value); e.target.value = ""; }} style={inputStyle}>
-              <option value="" disabled>Escolher skill…</option>
-              {catalog.skill_presets.map((p) => (
-                <option key={p.id} value={p.id}>{p.class_name} · {p.label}</option>
-              ))}
-            </select>
+      {skillCat.skills.length > 0 && (
+        <div className="mb-3 grid grid-cols-3 gap-3">
+          <div className="col-span-3">
+            <Field label={`Skill (coef real${skillCat.patch ? ` · patch ${skillCat.patch}` : ""})`}>
+              <select value={combat.skill_id || ""}
+                onChange={(e) => setCombat({ skill_id: e.target.value || null })} style={inputStyle}>
+                <option value="">— manual (sem coeficiente) —</option>
+                {Object.entries(skillsByClass).map(([cls, list]) => (
+                  <optgroup key={cls} label={cls}>
+                    {list.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+                  </optgroup>
+                ))}
+              </select>
+            </Field>
+          </div>
+          <Field label="Dano da arma">
+            <NumberInput value={combat.weapon_damage ?? ""} placeholder="ex: 4000"
+              onChange={(e) => setCombat({ weapon_damage: e.target.value })} />
           </Field>
+          <Field label="Rank da skill">
+            <NumberInput min={1} max={selectedSkill?.ranks || 5} value={combat.skill_rank ?? 1}
+              onChange={(e) => setCombat({ skill_rank: num(e.target.value, 1) })} />
+          </Field>
+          {selectedSkill && (
+            <div className="self-end text-[11px]" style={{ color: PALETTE.muted }}>
+              fonte: {selectedSkill.source || "—"} · conf: {selectedSkill.confidence}
+            </div>
+          )}
         </div>
       )}
       <div className="grid grid-cols-2 gap-3">
-        <Field label="Base hit"><NumberInput value={combat.base_hit} onChange={(e) => setCombat({ base_hit: e.target.value })} /></Field>
+        <Field label={selectedSkill && combat.weapon_damage ? "Base hit (calculado)" : "Base hit"}>
+          <NumberInput value={result?.resolved ? result.base_hit : combat.base_hit}
+            disabled={!!(selectedSkill && combat.weapon_damage)}
+            onChange={(e) => setCombat({ base_hit: e.target.value })} />
+        </Field>
         <Field label="Hits / segundo"><NumberInput value={combat.hits_per_second} onChange={(e) => setCombat({ hits_per_second: e.target.value })} /></Field>
         {pctFields.map(([key, label]) => (
           <Field key={key} label={label}>
@@ -359,6 +392,12 @@ function DamageLab({ combat, setCombat, setModifiers, result, error }) {
               <p className="text-xl font-bold" style={{ color: PALETTE.text }}>{fmt(result.expected_hit)}</p>
             </div>
           </div>
+          {result.resolved && (
+            <p className="mt-2 text-[11px]" style={{ color: PALETTE.muted }}>
+              base = {fmt(result.resolved.weapon_damage)} (arma) × {result.resolved.coefficient.toFixed(2)} (coef rank {result.resolved.rank})
+              {" · "}fonte: {result.resolved.source} · patch {result.resolved.patch} · conf {result.resolved.confidence}
+            </p>
+          )}
           <div className="mt-3 grid grid-cols-3 gap-2 text-center text-xs">
             <Multiplier label="Crit" value={result.crit_multiplier} />
             <Multiplier label="Vulnerable" value={result.vulnerable_multiplier} />
