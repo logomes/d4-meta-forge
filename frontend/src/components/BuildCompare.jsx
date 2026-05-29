@@ -17,7 +17,9 @@ const fmtDps = (n) => (n == null ? "—" : n >= 1000 ? Math.round(n).toLocaleStr
 
 function profileFromBuild(b) {
   const c = b.data?.combat;
-  if (!c || num(c.base_hit) <= 0) return null;
+  if (!c) return null;
+  const hasSkill = c.skill_id && num(c.weapon_damage) > 0;
+  if (num(c.base_hit) <= 0 && !hasSkill) return null;
   return {
     base_hit: num(c.base_hit),
     hits_per_second: num(c.hits_per_second, 1),
@@ -27,6 +29,9 @@ function profileFromBuild(b) {
     vulnerable_bonus: num(c.vulnerable_bonus),
     overpower_chance: num(c.overpower_chance),
     overpower_bonus: num(c.overpower_bonus),
+    skill_id: c.skill_id || null,
+    skill_rank: num(c.skill_rank, 1),
+    weapon_damage: c.weapon_damage ? num(c.weapon_damage) : null,
     modifiers: (c.modifiers || []).map((m) => ({
       name: m.name || "", bucket: m.bucket || "additive", value: num(m.value),
     })),
