@@ -19,8 +19,7 @@ class Modifier(BaseModel):
     note: str | None = None
 
 
-class CombatProfile(BaseModel):
-    base_hit: float = Field(..., gt=0, description="Skill base damage per hit")
+class CombatParams(BaseModel):
     hits_per_second: float = Field(1.0, gt=0)
     modifiers: list[Modifier] = Field(default_factory=list)
     crit_chance: float = Field(0.0, ge=0, le=1)
@@ -29,6 +28,10 @@ class CombatProfile(BaseModel):
     vulnerable_bonus: float = Field(0.0, ge=0)
     overpower_chance: float = Field(0.0, ge=0, le=1)
     overpower_bonus: float = Field(0.0, ge=0)
+
+
+class CombatProfile(CombatParams):
+    base_hit: float = Field(..., gt=0, description="Skill base damage per hit")
 
 
 class BucketBreakdown(BaseModel):

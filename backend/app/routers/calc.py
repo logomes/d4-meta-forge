@@ -3,14 +3,14 @@ from __future__ import annotations
 from fastapi import APIRouter, HTTPException
 from pydantic import Field
 
-from ..damage import CombatProfile, DamageResult, ResolvedSkill, compute
+from ..damage import CombatParams, CombatProfile, DamageResult, ResolvedSkill, compute
 from ..damage_sources import CATALOG, DamageCatalog
 from ..skill_coefficients import SkillCatalog, coefficient_at, get, load
 
 router = APIRouter(prefix="/api/calc", tags=["calc"])
 
 
-class DamageRequest(CombatProfile):
+class DamageRequest(CombatParams):
     """Transport model: base_hit optional, plus optional skill-resolution fields."""
     base_hit: float | None = Field(default=None, gt=0)
     skill_id: str | None = None
@@ -24,10 +24,10 @@ def calc_damage(req: DamageRequest) -> DamageResult:
     base = req.base_hit
 
     if req.skill_id and req.weapon_damage is not None:
+        skill = get(req.skill_id)
         coef = coefficient_at(req.skill_id, req.skill_rank)
-        if coef is not None:
+        if skill is not None and coef is not None:
             base = req.weapon_damage * coef
-            skill = get(req.skill_id)
             resolved = ResolvedSkill(
                 skill_id=skill.id, name=skill.name, rank=req.skill_rank,
                 coefficient=coef, weapon_damage=req.weapon_damage,
@@ -40,17 +40,8 @@ def calc_damage(req: DamageRequest) -> DamageResult:
             detail="Informe base_hit > 0 ou skill_id + weapon_damage que resolvam um base válido.",
         )
 
-    profile = CombatProfile(
-        base_hit=base,
-        hits_per_second=req.hits_per_second,
-        modifiers=req.modifiers,
-        crit_chance=req.crit_chance,
-        crit_damage_bonus=req.crit_damage_bonus,
-        vulnerable_uptime=req.vulnerable_uptime,
-        vulnerable_bonus=req.vulnerable_bonus,
-        overpower_chance=req.overpower_chance,
-        overpower_bonus=req.overpower_bonus,
-    )
+    params = req.model_dump(exclude={"base_hit", "skill_id", "skill_rank", "weapon_damage"})
+    profile = CombatProfile(base_hit=base, **params)
     result = compute(profile)
     result.resolved = resolved
     return result

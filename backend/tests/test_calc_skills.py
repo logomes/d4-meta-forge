@@ -45,3 +45,21 @@ def test_damage_unknown_skill_falls_back_to_manual(client):
 def test_damage_requires_base_or_skill(client):
     res = client.post("/api/calc/damage", json={"hits_per_second": 1})
     assert res.status_code == 422
+
+
+def test_damage_skill_path_wins_over_manual_base(client):
+    # quando skill_id + weapon_damage resolvem, o base_hit manual é ignorado
+    res = client.post("/api/calc/damage", json={
+        "skill_id": "barbarian_hota", "skill_rank": 1, "weapon_damage": 1000,
+        "base_hit": 99999, "hits_per_second": 1,
+    })
+    assert res.status_code == 200
+    body = res.json()
+    assert body["base_hit"] == 600.0
+    assert body["resolved"] is not None
+
+
+def test_damage_422_body_mentions_base_hit(client):
+    res = client.post("/api/calc/damage", json={"hits_per_second": 1})
+    assert res.status_code == 422
+    assert "base_hit" in str(res.json()["detail"])
