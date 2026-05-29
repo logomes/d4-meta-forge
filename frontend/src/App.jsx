@@ -3,7 +3,7 @@ import {
   Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer,
 } from "recharts";
 import { Flame, AlertTriangle, Plus, Pencil, X, GitCompare, FileDown, Copy, Download } from "lucide-react";
-import { listBuilds, saveBuild } from "./api.js";
+import { listBuilds, saveBuild, getSkills } from "./api.js";
 import { buildToMarkdown } from "./markdown.js";
 import BuildForge from "./components/BuildForge.jsx";
 import BuildCompare from "./components/BuildCompare.jsx";
@@ -192,7 +192,13 @@ function Viewer({ build }) {
 }
 
 function ExportPanel({ build, onClose }) {
-  const md = buildToMarkdown(build);
+  const [skillNames, setSkillNames] = useState({});
+  useEffect(() => {
+    getSkills()
+      .then((cat) => setSkillNames(Object.fromEntries((cat.skills || []).map((s) => [s.id, s.name]))))
+      .catch(() => {});
+  }, []);
+  const md = buildToMarkdown(build, skillNames);
   const [copied, setCopied] = useState(false);
   const copy = async () => {
     try {

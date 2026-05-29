@@ -4,7 +4,9 @@
 
 const esc = (v) => String(v ?? "").replace(/\|/g, "\\|").trim();
 
-export function buildToMarkdown(build) {
+// `skillNames` is an optional { skill_id: displayName } map (e.g. from the
+// /api/calc/skills catalog). When absent, the raw skill id (slug) is shown.
+export function buildToMarkdown(build, skillNames = {}) {
   const d = build.data || {};
   const out = [];
 
@@ -39,7 +41,9 @@ export function buildToMarkdown(build) {
   if (c) {
     out.push("## Perfil de combate", "");
     if (c.skill_id) {
-      out.push(`- Skill: ${esc(c.skill_id)} (rank ${esc(c.skill_rank ?? 1)}) · Dano de arma: ${esc(c.weapon_damage)}`);
+      const skillName = skillNames[c.skill_id] || c.skill_id;
+      const weapon = Number(c.weapon_damage) > 0 ? ` · Dano de arma: ${esc(c.weapon_damage)}` : "";
+      out.push(`- Skill: ${esc(skillName)} (rank ${esc(c.skill_rank ?? 1)})${weapon}`);
     }
     out.push(`- Base hit: ${esc(c.base_hit)} · Hits/s: ${esc(c.hits_per_second)}`);
     out.push(`- Crit: ${esc(c.crit_chance)} chance · +${esc(c.crit_damage_bonus)} dmg`);
