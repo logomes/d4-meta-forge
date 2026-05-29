@@ -2,8 +2,9 @@ import { useEffect, useState } from "react";
 import {
   Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer,
 } from "recharts";
-import { Flame, AlertTriangle, Plus, Pencil, X, GitCompare } from "lucide-react";
+import { Flame, AlertTriangle, Plus, Pencil, X, GitCompare, FileDown, Copy, Download } from "lucide-react";
 import { listBuilds, saveBuild } from "./api.js";
+import { buildToMarkdown } from "./markdown.js";
 import BuildForge from "./components/BuildForge.jsx";
 import BuildCompare from "./components/BuildCompare.jsx";
 
@@ -19,6 +20,7 @@ export default function App() {
   const [editing, setEditing] = useState(false);
   const [comparing, setComparing] = useState(false);
   const [compareIds, setCompareIds] = useState([]);
+  const [showMd, setShowMd] = useState(false);
   const [error, setError] = useState("");
 
   const refresh = (pick) =>
@@ -39,8 +41,8 @@ export default function App() {
     setEditing(false);
   };
 
-  const startNew = () => { setSelected(newBuild()); setEditing(true); setComparing(false); };
-  const toggleCompare = () => { setComparing((c) => !c); setEditing(false); };
+  const startNew = () => { setSelected(newBuild()); setEditing(true); setComparing(false); setShowMd(false); };
+  const toggleCompare = () => { setComparing((c) => !c); setEditing(false); setShowMd(false); };
   const toggleCompareId = (id) =>
     setCompareIds((ids) => (ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id]));
 
@@ -86,7 +88,7 @@ export default function App() {
             const active = comparing ? compareIds.includes(b.id) : selected?.id === b.id;
             return (
               <button key={b.id}
-                onClick={() => (comparing ? toggleCompareId(b.id) : (setSelected(b), setEditing(false)))}
+                onClick={() => (comparing ? toggleCompareId(b.id) : (setSelected(b), setEditing(false), setShowMd(false)))}
                 className="rounded px-3 py-1.5 text-sm"
                 style={{
                   background: active ? "#1f1814" : "transparent",
@@ -121,13 +123,19 @@ export default function App() {
 
             {selected && !editing && (
               <div>
-                <div className="mb-3 flex justify-end">
+                <div className="mb-3 flex justify-end gap-2">
+                  <button onClick={() => setShowMd((v) => !v)}
+                    className="inline-flex items-center gap-1.5 rounded px-3 py-1.5 text-sm"
+                    style={{ color: "#9c8a76", border: "1px solid #3a2c22", background: "transparent" }}>
+                    <FileDown size={13} /> Export MD
+                  </button>
                   <button onClick={() => setEditing(true)}
                     className="inline-flex items-center gap-1.5 rounded px-3 py-1.5 text-sm"
                     style={{ color: "#d4af37", border: "1px solid #3a2c22", background: "transparent" }}>
                     <Pencil size={13} /> Editar
                   </button>
                 </div>
+                {showMd && <ExportPanel build={selected} onClose={() => setShowMd(false)} />}
                 <Viewer build={selected} />
               </div>
             )}
@@ -179,6 +187,49 @@ function Viewer({ build }) {
           </div>
         )}
       </section>
+    </div>
+  );
+}
+
+function ExportPanel({ build, onClose }) {
+  const md = buildToMarkdown(build);
+  const [copied, setCopied] = useState(false);
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(md);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch { /* clipboard unavailable; textarea selection still works */ }
+  };
+  const download = () => {
+    const slug = (build.name || "build").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+    const url = URL.createObjectURL(new Blob([md], { type: "text/markdown" }));
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${slug || "build"}.md`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+  return (
+    <div className="mb-4 rounded-lg p-4" style={{ background: "#17120f", border: "1px solid #2a201a" }}>
+      <div className="mb-2 flex items-center justify-between">
+        <h3 className="text-sm font-bold tracking-wide" style={{ color: "#d4af37" }}>EXPORT MARKDOWN</h3>
+        <div className="flex items-center gap-2">
+          <button onClick={copy} className="inline-flex items-center gap-1.5 rounded px-2.5 py-1 text-xs"
+            style={{ color: "#9c8a76", border: "1px solid #3a2c22" }}>
+            <Copy size={12} /> {copied ? "Copiado!" : "Copiar"}
+          </button>
+          <button onClick={download} className="inline-flex items-center gap-1.5 rounded px-2.5 py-1 text-xs"
+            style={{ color: "#9c8a76", border: "1px solid #3a2c22" }}>
+            <Download size={12} /> Baixar .md
+          </button>
+          <button onClick={onClose} className="inline-flex items-center gap-1.5 text-xs" style={{ color: "#9c8a76" }}>
+            <X size={12} /> Fechar
+          </button>
+        </div>
+      </div>
+      <textarea readOnly value={md} spellCheck={false}
+        style={{ width: "100%", height: 260, background: "#120d0a", color: "#e7dccd", border: "1px solid #3a2c22", borderRadius: 6, padding: 12, fontFamily: "ui-monospace, monospace", fontSize: 12, whiteSpace: "pre", overflow: "auto" }} />
     </div>
   );
 }
