@@ -15,6 +15,7 @@
       "ranks": 5,
       "source": "seed",
       "confidence": "low",
+      "icon_url": "https://wow.zamimg.com/d4/d4/texture/hash/169/1247211689.webp",
       "note": "placeholder de exemplo; valor real não verificado (a fonte web retornou dado duplicado suspeito). Conferir in-game."
     },
     {
@@ -27,6 +28,7 @@
       "ranks": 5,
       "source": "seed",
       "confidence": "low",
+      "icon_url": "https://wow.zamimg.com/d4/d4/texture/hash/237/2402480109.webp",
       "note": "placeholder de exemplo; valor real não verificado. Conferir in-game."
     },
     {
@@ -39,6 +41,7 @@
       "ranks": 5,
       "source": "fextralife",
       "confidence": "low",
+      "icon_url": "https://wow.zamimg.com/d4/d4/texture/hash/220/3374508764.webp",
       "note": "ballpark FextraLife (rank1 71%, escala linear dos ranks 1-4; rank 5 tem salto maior, ignorado). NÃO verificado p/ patch 3.0 — conferir in-game."
     },
     {
@@ -51,6 +54,7 @@
       "ranks": 5,
       "source": "fextralife",
       "confidence": "low",
+      "icon_url": "https://wow.zamimg.com/d4/d4/texture/hash/26/1062930714.webp",
       "note": "ballpark FextraLife (rotulado 'por segundo'; rank1 120%, escala linear ranks 1-4). NÃO verificado p/ patch 3.0 — conferir in-game."
     },
     {
@@ -63,6 +67,7 @@
       "ranks": 5,
       "source": "fextralife",
       "confidence": "low",
+      "icon_url": "https://wow.zamimg.com/d4/d4/texture/hash/67/1562028099.webp",
       "note": "ballpark FextraLife (rank1 130%, escala linear ranks 1-4; rank 5 salto maior, ignorado). NÃO verificado p/ patch 3.0 — conferir in-game."
     },
     {
@@ -75,6 +80,7 @@
       "ranks": 5,
       "source": "fextralife",
       "confidence": "low",
+      "icon_url": "https://wow.zamimg.com/d4/d4/texture/hash/184/2489669816.webp",
       "note": "ballpark FextraLife (rank1 100%, escala linear ranks 1-4; rank 5 salto maior, ignorado). Dano por flecha (5 flechas). NÃO verificado p/ patch 3.0 — conferir in-game."
     }
   ]
