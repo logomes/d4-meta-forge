@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import AppShell from "./components/AppShell.jsx";
-import { listBuilds, getBuild, currentPatch as fetchCurrentPatch } from "./api.js";
-import { toUI, newBuild } from "./lib/buildShape.js";
+import { listBuilds, getBuild, currentPatch as fetchCurrentPatch, saveBuild } from "./api.js";
+import { toUI, toAPI, newBuild } from "./lib/buildShape.js";
 import MetaHub from "./views/MetaHub.jsx";
 import BuildDetail from "./views/BuildDetail.jsx";
 import DamageLab from "./views/DamageLab.jsx";
 import CompareView from "./views/CompareView.jsx";
+import Forge from "./views/Forge.jsx";
 
 export default function App() {
   const [view, setView] = useState("hub");
@@ -48,6 +49,14 @@ export default function App() {
     setForgeBuild(b || newBuild());
     nav("forge");
   };
+  const handleSave = async (uiBuild) => {
+    const payload = toAPI(uiBuild);
+    if (payload.id === "new") delete payload.id; // POST cria id no backend
+    await saveBuild(payload);
+    await reload();
+    nav("hub");
+  };
+
   const toggleCompareId = (b) =>
     setCompareIds((ids) => (ids.includes(b.id) ? ids.filter((x) => x !== b.id) : [...ids, b.id]));
   const addCompare = (b) => {
@@ -93,7 +102,7 @@ export default function App() {
         <CompareView builds={cmpBuilds} onBack={() => nav("hub")} onOpen={open} />
       )}
       {view === "forge" && forgeBuild && (
-        <div className="font-ui text-muted">Forge: {forgeBuild.name} (placeholder)</div>
+        <Forge build={forgeBuild} onSave={handleSave} onCancel={() => nav("hub")} onLab={toLab} />
       )}
     </AppShell>
   );
