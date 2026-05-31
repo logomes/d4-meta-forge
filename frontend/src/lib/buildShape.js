@@ -12,6 +12,10 @@ export const EMPTY_COMBAT = {
   modifiers: [{ name: "+Skill dmg", bucket: "additive", value: 1 }],
 };
 
+// Coage para array — protege contra builds legadas/malformadas onde um campo
+// de lista veio como string, objeto ou null (ex.: `data.sources` antigo era string).
+const arr = (v) => (Array.isArray(v) ? v : []);
+
 // API -> UI: achata class_name e espalha o dict data com defaults seguros.
 export function toUI(b) {
   const d = b.data || {};
@@ -24,15 +28,15 @@ export function toUI(b) {
     patch: b.patch || "",
     objective: b.objective || "",
     blurb: d.blurb || "",
-    tags: d.tags || [],
+    tags: arr(d.tags),
     pop: typeof d.pop === "number" ? d.pop : 0,
     pit: typeof d.pit === "number" ? d.pit : 0,
-    skills: d.skills || [],
-    rotation: d.rotation || [],
-    gear: d.gear || [],
-    attributes: d.attributes || [],
+    skills: arr(d.skills),
+    rotation: arr(d.rotation),
+    gear: arr(d.gear),
+    attributes: arr(d.attributes),
     combat: { ...EMPTY_COMBAT, ...(d.combat || {}) },
-    sources: d.sources || [],
+    sources: arr(d.sources),
   };
 }
 
