@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import AppShell from "./components/AppShell.jsx";
 import { listBuilds, getBuild, currentPatch as fetchCurrentPatch } from "./api.js";
 import { toUI, newBuild } from "./lib/buildShape.js";
+import MetaHub from "./views/MetaHub.jsx";
 
 export default function App() {
   const [view, setView] = useState("hub");
@@ -65,9 +66,14 @@ export default function App() {
       patchLabel={curPatch ? `patch ${curPatch}` : null}
     >
       {view === "hub" && (
-        <div className="font-ui text-muted">
-          Meta Hub — {builds.length} builds carregadas (placeholder)
-        </div>
+        <MetaHub
+          builds={builds}
+          currentPatch={curPatch}
+          onOpen={open}
+          comparing={comparing}
+          compareIds={compareIds}
+          onCompare={comparing ? toggleCompareId : addCompare}
+        />
       )}
       {view === "detail" && selected && (
         <div className="font-ui text-muted">Detail: {selected.name} (placeholder)</div>
