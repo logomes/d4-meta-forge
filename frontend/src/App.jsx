@@ -5,6 +5,7 @@ import { toUI, newBuild } from "./lib/buildShape.js";
 import MetaHub from "./views/MetaHub.jsx";
 import BuildDetail from "./views/BuildDetail.jsx";
 import DamageLab from "./views/DamageLab.jsx";
+import CompareView from "./views/CompareView.jsx";
 
 export default function App() {
   const [view, setView] = useState("hub");
@@ -89,7 +90,7 @@ export default function App() {
       )}
       {view === "lab" && <DamageLab builds={builds} initialBuild={labBuild} onOpen={open} />}
       {view === "compare" && (
-        <div className="font-ui text-muted">Compare: {cmpBuilds.length} builds (placeholder)</div>
+        <CompareView builds={cmpBuilds} onBack={() => nav("hub")} onOpen={open} />
       )}
       {view === "forge" && forgeBuild && (
         <div className="font-ui text-muted">Forge: {forgeBuild.name} (placeholder)</div>
