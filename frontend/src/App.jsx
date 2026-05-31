@@ -3,6 +3,7 @@ import AppShell from "./components/AppShell.jsx";
 import { listBuilds, getBuild, currentPatch as fetchCurrentPatch } from "./api.js";
 import { toUI, newBuild } from "./lib/buildShape.js";
 import MetaHub from "./views/MetaHub.jsx";
+import BuildDetail from "./views/BuildDetail.jsx";
 
 export default function App() {
   const [view, setView] = useState("hub");
@@ -76,7 +77,14 @@ export default function App() {
         />
       )}
       {view === "detail" && selected && (
-        <div className="font-ui text-muted">Detail: {selected.name} (placeholder)</div>
+        <BuildDetail
+          build={selected}
+          currentPatch={curPatch}
+          onBack={() => nav("hub")}
+          onLab={toLab}
+          onCompare={addCompare}
+          onEdit={openForge}
+        />
       )}
       {view === "lab" && <div className="font-ui text-muted">Damage Lab (placeholder)</div>}
       {view === "compare" && (
