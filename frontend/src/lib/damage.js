@@ -1,7 +1,7 @@
 // Mirror puro de backend/app/damage.py::compute().
 // Mesma regra: modifiers do mesmo bucket SOMAM; buckets MULTIPLICAM.
 // Crit, vulnerable e overpower são multiplicadores dedicados (não buckets).
-export function calcDamage(c) {
+export function computeDamage(c) {
   const sums = {};
   (c.modifiers || []).forEach((m) => {
     sums[m.bucket] = (sums[m.bucket] || 0) + (Number(m.value) || 0);
