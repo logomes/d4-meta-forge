@@ -19,10 +19,10 @@ def test_overpower_is_dedicated_multiplier_not_bucket():
         ],
     )
     r = compute(profile)
-    crit = 1 + 0.5 * 1.5
-    vuln = 1 + 0.8 * 0.2
-    op = 1 + 0.3 * 1.0
-    bucket = (1 + 1.0) * (1 + 0.5)
+    crit = 1 + 0.5 * 1.5            # 1.75
+    vuln = 1 + 0.8 * 0.2            # 1.16
+    op = 1 + 0.3 * 1.0              # 1.30
+    bucket = (1 + 1.0) * (1 + 0.5)  # additive * lucky_hit = 2.0 * 1.5 = 3.0
     expected_hit = 10000 * bucket * crit * vuln * op
     assert abs(r.expected_hit - expected_hit) < 1e-6
     assert abs(r.expected_dps - expected_hit * 2.0) < 1e-6
