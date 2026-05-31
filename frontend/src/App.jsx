@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import AppShell from "./components/AppShell.jsx";
-import { listBuilds, getBuild, currentPatch as fetchCurrentPatch, saveBuild } from "./api.js";
+import { listBuilds, currentPatch as fetchCurrentPatch, saveBuild } from "./api.js";
 import { toUI, toAPI, newBuild } from "./lib/buildShape.js";
 import MetaHub from "./views/MetaHub.jsx";
 import BuildDetail from "./views/BuildDetail.jsx";
