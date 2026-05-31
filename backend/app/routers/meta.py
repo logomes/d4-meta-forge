@@ -3,11 +3,17 @@ from __future__ import annotations
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlmodel import Session, select
 
+from ..config import settings
 from ..db import get_session
 from ..gamedata import GameDataError, search
 from ..models import PatchNote, SourceRef
 
 router = APIRouter(prefix="/api/meta", tags=["meta"])
+
+
+@router.get("/current-patch")
+def current_patch():
+    return {"patch": settings.current_patch}
 
 
 @router.get("/sources", response_model=list[SourceRef])
