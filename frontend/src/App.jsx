@@ -4,6 +4,7 @@ import { listBuilds, getBuild, currentPatch as fetchCurrentPatch } from "./api.j
 import { toUI, newBuild } from "./lib/buildShape.js";
 import MetaHub from "./views/MetaHub.jsx";
 import BuildDetail from "./views/BuildDetail.jsx";
+import DamageLab from "./views/DamageLab.jsx";
 
 export default function App() {
   const [view, setView] = useState("hub");
@@ -86,7 +87,7 @@ export default function App() {
           onEdit={openForge}
         />
       )}
-      {view === "lab" && <div className="font-ui text-muted">Damage Lab (placeholder)</div>}
+      {view === "lab" && <DamageLab builds={builds} initialBuild={labBuild} onOpen={open} />}
       {view === "compare" && (
         <div className="font-ui text-muted">Compare: {cmpBuilds.length} builds (placeholder)</div>
       )}
