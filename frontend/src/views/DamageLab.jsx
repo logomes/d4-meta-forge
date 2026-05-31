@@ -7,6 +7,8 @@ import { fmt, pct } from "../lib/format.js";
 import { EMPTY_COMBAT } from "../lib/buildShape.js";
 import Panel from "../components/primitives/Panel.jsx";
 import Glyph from "../components/primitives/Glyph.jsx";
+import { getSkills, calcDamage as apiCalcDamage } from "../api.js";
+import SkillIcon from "../components/SkillIcon.jsx";
 
 // ── useCountUp ────────────────────────────────────────────────────────────────
 
@@ -245,6 +247,32 @@ export default function DamageLab({ builds, initialBuild, onOpen }) {
 
   const set = (patch) => setCombat((c) => ({ ...c, ...patch }));
 
+  // ── Skill resolver state ──────────────────────────────────────────────────
+  const [skills, setSkills] = useState([]);
+  const [skillId, setSkillId] = useState("");
+  const [weapon, setWeapon] = useState(1000);
+  const [rank, setRank] = useState(1);
+  const [resolved, setResolved] = useState(null);
+
+  useEffect(() => {
+    getSkills().then((r) => setSkills(r.skills || [])).catch(() => setSkills([]));
+  }, []);
+
+  useEffect(() => {
+    if (!skillId || !(weapon > 0)) { setResolved(null); return; }
+    let cancelled = false;
+    apiCalcDamage({ skill_id: skillId, skill_rank: rank, weapon_damage: weapon })
+      .then((res) => {
+        if (cancelled) return;
+        setResolved(res.resolved || null);
+        if (res.base_hit) set({ base_hit: res.base_hit });
+      })
+      .catch(() => { if (!cancelled) setResolved(null); });
+    return () => { cancelled = true; };
+  }, [skillId, weapon, rank]);
+
+  const selSkill = skills.find((s) => s.id === skillId);
+
   const setMod = (i, key, v) =>
     setCombat((c) => {
       const m = c.modifiers.slice();
@@ -338,6 +366,63 @@ export default function DamageLab({ builds, initialBuild, onOpen }) {
         <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
           <Panel title="Hit base">
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              {/* ── Resolver por skill ── */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                <span style={{ fontFamily: "var(--f-ui)", fontSize: 11, textTransform: "uppercase", letterSpacing: ".1em", color: "var(--faint)" }}>
+                  Resolver por skill
+                </span>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                  <SkillIcon url={selSkill?.icon_url} size={28} alt={selSkill?.name} />
+                  <select
+                    value={skillId}
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      setSkillId(v);
+                      if (!v) setResolved(null);
+                    }}
+                    style={{ ...selectLab, flex: 1, minWidth: 0, fontSize: 12 }}
+                  >
+                    <option value="">— base_hit manual —</option>
+                    {skills.map((s) => (
+                      <option key={s.id} value={s.id}>
+                        {s.name} ({s.class_name})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                {skillId && (
+                  <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                    <label style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                      <span style={{ fontFamily: "var(--f-ui)", fontSize: 11, color: "var(--muted)" }}>Arma</span>
+                      <input
+                        type="number"
+                        min={1}
+                        step={100}
+                        value={weapon}
+                        onChange={(e) => setWeapon(Math.max(1, parseInt(e.target.value) || 1))}
+                        style={{ ...inputLab, width: 88 }}
+                      />
+                    </label>
+                    <label style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                      <span style={{ fontFamily: "var(--f-ui)", fontSize: 11, color: "var(--muted)" }}>Rank</span>
+                      <input
+                        type="number"
+                        min={1}
+                        max={5}
+                        value={rank}
+                        onChange={(e) => setRank(Math.min(5, Math.max(1, parseInt(e.target.value) || 1)))}
+                        style={{ ...inputLab, width: 52 }}
+                      />
+                    </label>
+                  </div>
+                )}
+                {resolved && (
+                  <div style={{ fontFamily: "var(--f-ui)", fontSize: 10.5, color: "var(--faint)", lineHeight: 1.4 }}>
+                    {resolved.name} · rank {resolved.rank} · coef {resolved.coefficient} × arma {resolved.weapon_damage} = base {Math.round(resolved.weapon_damage * resolved.coefficient)} · {resolved.confidence}
+                  </div>
+                )}
+              </div>
+
               <LabSlider
                 label="Base hit"
                 value={combat.base_hit}
