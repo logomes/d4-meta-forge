@@ -13,6 +13,7 @@ class Settings(BaseSettings):
     gamedata_dir: str = "./data/gamedata"
     gamedata_repo: str = "https://raw.githubusercontent.com/DiabloTools/d4data/master"
     user_agent: str = "d4-meta-forge/0.1 (+https://github.com/youruser/d4-meta-forge)"
+    current_patch: str = "3.0"  # sobrescrevível via CURRENT_PATCH; patch atual da Blizzard
 
     @cached_property
     def connect_args(self) -> dict:

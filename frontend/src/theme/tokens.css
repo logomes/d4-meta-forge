@@ -1,0 +1,25 @@
+:root,
+[data-theme="obsidian"] {
+  --bg: #0b0907;  --panel: #16110d;  --input: #100b08;  --border: #2a2018;  --line: #352a20;
+  --text: #ece2d3; --text-dim: #b9ab97; --muted: #9c8a76; --muted-2: #b3a48f; --faint: #6b5d4d;
+  --ember: #e2622e;
+  --f-display: 'Cinzel', serif;
+  --f-ui: 'Spectral', Georgia, serif;
+  --f-num: 'Oswald', sans-serif;
+  --accent: #e8c860;
+  --accent-dim: #e8c86066;
+  --accent-wash: #e8c86016;
+  --accent-glow: #e8c86055;
+}
+
+[data-theme="abyss"] {
+  --bg: #07080a; --panel: #0f1318; --input: #0a0d11; --border: #1c232b; --line: #27303a;
+  --text: #dde6ee; --text-dim: #9fb0c0; --muted: #7d8da0; --muted-2: #9aa9bb; --faint: #56616e;
+  --ember: #e2622e;
+}
+
+[data-theme="parchment"] {
+  --bg: #e7ddca; --panel: #f3ecdc; --input: #ece2cc; --border: #ccbd9c; --line: #d8cbac;
+  --text: #2a2114; --text-dim: #5a4d36; --muted: #6f5f44; --muted-2: #564a34; --faint: #9a8966;
+  --ember: #b5471f;
+}

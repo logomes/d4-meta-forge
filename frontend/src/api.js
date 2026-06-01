@@ -27,6 +27,8 @@ export const getSkills = () => request(`/api/calc/skills`);
 
 export const latestPatch = () => request(`/api/meta/patch/latest`);
 
+export const currentPatch = () => request(`/api/meta/current-patch`);
+
 function jsonBody(method, payload) {
   return {
     method,
