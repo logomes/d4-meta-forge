@@ -3,6 +3,7 @@ export default function Radar({ data, color = "var(--accent)", size = 220, max =
     cy = size / 2,
     R = size * 0.38;
   const n = data.length;
+  if (n === 0) return <svg viewBox={`0 0 ${size} ${size}`} width="100%" style={{ display: "block" }} />;
   const angle = (i) => (Math.PI * 2 * i) / n - Math.PI / 2;
   const point = (i, rad) => [cx + Math.cos(angle(i)) * rad, cy + Math.sin(angle(i)) * rad];
   const rings = [0.25, 0.5, 0.75, 1];

@@ -77,6 +77,13 @@ function CompareRadar({ builds, size = 300, max = 10 }) {
 // ── CompareView (default export) ──────────────────────────────────────────────
 
 export default function CompareView({ builds, onBack, onOpen }) {
+  // Hooks must run unconditionally and before any early return (Rules of Hooks).
+  // Harmless for <2 builds — computeDamage tolerates empty/seeded combat.
+  const rows = useMemo(
+    () => (builds || []).map((b) => ({ b, dmg: computeDamage(b.combat) })),
+    [builds],
+  );
+
   // Guard: need at least 2 builds
   if (!builds || builds.length < 2) {
     return (
@@ -122,7 +129,6 @@ export default function CompareView({ builds, onBack, onOpen }) {
     );
   }
 
-  const rows = useMemo(() => builds.map((b) => ({ b, dmg: computeDamage(b.combat) })), [builds]);
   const attrs = (builds[0].attributes || []).map((a) => a.attribute);
   const best = (vals) => Math.max(...vals);
 

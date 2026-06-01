@@ -1,4 +1,5 @@
-// Mirror puro de backend/app/damage.py::compute().
+// Mirror da fórmula de backend/app/damage.py::compute() (não dos defaults do
+// Pydantic — campos ausentes caem em 0 aqui; a UI sempre semeia via EMPTY_COMBAT).
 // Mesma regra: modifiers do mesmo bucket SOMAM; buckets MULTIPLICAM.
 // Crit, vulnerable e overpower são multiplicadores dedicados (não buckets).
 export function computeDamage(c) {
