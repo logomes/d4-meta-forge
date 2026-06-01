@@ -19,5 +19,16 @@ class Settings(BaseSettings):
     def connect_args(self) -> dict:
         return {"check_same_thread": False} if self.database_url.startswith("sqlite") else {}
 
+    @cached_property
+    def effective_database_url(self) -> str:
+        # Render/Heroku entregam `postgres://`; o SQLAlchemy 2.x exige `postgresql://`
+        # e usamos o driver psycopg 3 (`+psycopg`). SQLite passa intacto.
+        url = self.database_url
+        if url.startswith("postgres://"):
+            return url.replace("postgres://", "postgresql+psycopg://", 1)
+        if url.startswith("postgresql://"):
+            return url.replace("postgresql://", "postgresql+psycopg://", 1)
+        return url
+
 
 settings = Settings()

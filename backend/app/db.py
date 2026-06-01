@@ -6,7 +6,9 @@ from sqlmodel import Session, SQLModel, create_engine
 
 from .config import settings
 
-engine = create_engine(settings.database_url, echo=False, connect_args=settings.connect_args)
+engine = create_engine(
+    settings.effective_database_url, echo=False, connect_args=settings.connect_args
+)
 
 
 def init_db() -> None:

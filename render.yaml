@@ -1,0 +1,27 @@
+# Render Blueprint — API FastAPI + Postgres gerenciado.
+# Importe em https://dashboard.render.com → New → Blueprint (aponta pro repo).
+# Depois do 1º deploy do frontend na Vercel, ajuste CORS_ORIGINS (abaixo) com o domínio .vercel.app.
+databases:
+  - name: d4meta-db
+    plan: free
+
+services:
+  - type: web
+    name: d4meta-api
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: d4meta-db
+          property: connectionString
+      - key: CURRENT_PATCH
+        value: "3.0"
+      # CORS_ORIGINS precisa ser um array JSON (pydantic faz parse como JSON).
+      # Defina manualmente no painel após criar o projeto na Vercel, ex.:
+      #   ["https://d4-meta-forge.vercel.app"]
+      - key: CORS_ORIGINS
+        sync: false
